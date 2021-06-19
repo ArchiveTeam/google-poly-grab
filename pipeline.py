@@ -49,7 +49,7 @@ if not WGET_AT:
 #
 # Update this each time you make a non-cosmetic change.
 # It will be added to the WARC files and reported to the tracker.
-VERSION = '20210618.01'
+VERSION = '20210619.01'
 USER_AGENT = 'Archive Team'
 TRACKER_ID = 'google-poly'
 TRACKER_HOST = 'legacy-api.arpa.li'
@@ -215,6 +215,7 @@ class WgetArgs(object):
             '--warc-header', 'x-wget-at-project-version: ' + VERSION,
             '--warc-header', 'x-wget-at-project-name: ' + TRACKER_ID,
             '--warc-dedup-url-agnostic',
+            '--header', 'Accept-Language: en-US;q=0.9, en;q=0.8',
         ]
 
         for item_name in item['item_name'].split('\0'):
