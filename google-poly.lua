@@ -113,10 +113,6 @@ allowed = function(url, parenturl)
     end
   end
 
-  if string.match(url, "^https?://poly%.googleusercontent%.com/downloads/") then
-    return false
-  end
-
   if string.match(url, "^https?://[^/]*googleusercontent%.com/") then
     return true
   end
@@ -218,6 +214,13 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
       or string.match(url, "%.gltf")
     ) then
     html = read_file(file)
+    if string.match(url, "%.gltf$") then
+      for s in string.gmatch(html, '"([a-f0-9][a-f0-9][a-f0-9][a-f0-9][a-f0-9][a-f0-9][a-f0-9][a-f0-9]%-[a-f0-9][a-f0-9][a-f0-9][a-f0-9]%-[a-f0-9][a-f0-9][a-f0-9][a-f0-9]%-[a-f0-9][a-f0-9][a-f0-9][a-f0-9]%-[a-f0-9][a-f0-9][a-f0-9][a-f0-9][a-f0-9][a-f0-9][a-f0-9][a-f0-9][a-f0-9][a-f0-9][a-f0-9][a-f0-9])"') do
+        ids[s] = true
+        check("https://www.tiltbrush.com/environments/" .. s .. "/" .. s .. ".gltf")
+        check("https://www.tiltbrush.com/environments/" .. s .. "/" .. s .. ".bin")
+      end
+    end
     for newurl in string.gmatch(string.gsub(html, "&quot;", '"'), '([^"]+)') do
       checknewurl(newurl)
     end
