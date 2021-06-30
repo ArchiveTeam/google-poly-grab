@@ -20,6 +20,9 @@ local bad_items = {}
 local discovered = {}
 local allowed_urls = {}
 
+local reqid = nil
+local version = nil
+
 if not urlparse or not http then
   io.stdout:write("socket not corrently installed.\n")
   io.stdout:flush()
@@ -113,8 +116,14 @@ allowed = function(url, parenturl)
     end
   end
 
-  if string.match(url, "^https?://[^/]*googleusercontent%.com/") then
+  if string.match(url, "batchexecute") then
     return true
+  end
+
+  if string.match(url, "^https?://[^/]*googleusercontent%.com/") then
+    print(url)
+ 
+ --   return true
   end
 
   return false
@@ -221,6 +230,64 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
         check("https://www.tiltbrush.com/environments/" .. s .. "/" .. s .. ".bin")
       end
     end
+    if string.match(url, "batchexecute") then
+      local count = 0
+      for s in string.gmatch(html, '%[\\"([^\\]+)\\"') do
+        if string.len(s) < 15 then
+          count = count + 1
+          queue_item(s, "poly")
+        end
+      end
+      if count == 0 then
+        return urls
+      end
+    end
+    if string.match(url, "/user/") or string.match(url, "batchexecute") then
+      local s = string.match(html, "{key:%s*'ds:1'%s*,%s*isError:%s*false%s*,%s*hash:%s*'2'%s*,%s*data:%[\"([^\"]+)")
+      if not s then
+        s = string.match(html, '"EWfySd"%s*,%s*"%[\\"(.-)\\"')
+      end
+      if not reqid then
+        reqid = string.match(html, '"FdrFJe":"([^"]+)"')
+      end
+      if not version then
+        version = string.match(html, '"cfb2h":"([^"]+)"')
+      end
+      local data = '[[["EWfySd","[30,\\"' .. s .. '\\",null,[],\\"' .. item_value .. '\\",null,null,[],null,null,null,null,\\"created\\",null,[]]",null,"generic"]]]'
+      print(data)
+      data = string.gsub(
+        data, "\\[uU]([0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F])",
+        function (s)
+          local i = tonumber(s, 16)
+          if i < 128 then
+            return string.char(i)
+          else
+            -- should not have these
+            abort_item()
+          end
+        end
+      )
+      print(data)
+      data = string.gsub(
+        data, "([^A-Za-z0-9_])",
+        function(s)
+          return string.format("%%%02X", string.byte(s))
+        end
+      )
+      print(data)
+      table.insert(
+        urls,
+        {
+          url="https://poly.google.com/_/VrZandriaUi/data/batchexecute?rpcids=EWfySd&f.sid=" .. reqid .. "&bl=" .. version .. "&hl=nl&soc-app=653&soc-platform=1&soc-device=1&rt=c",
+          method="POST",
+          body_data="f.req=" .. data .. "&",
+          headers={
+            ["content-type"]="application/x-www-form-urlencoded;charset=UTF-8"
+          }
+        }
+      )
+    end
+    html = string.gsub(html, '\\"', '"')
     for newurl in string.gmatch(string.gsub(html, "&quot;", '"'), '([^"]+)') do
       checknewurl(newurl)
     end
