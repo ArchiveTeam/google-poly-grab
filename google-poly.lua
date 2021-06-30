@@ -244,6 +244,9 @@ wget.callbacks.get_urls = function(file, url, is_css, iri)
       local s = string.match(html, "{key:%s*'ds:1'%s*,%s*isError:%s*false%s*,%s*hash:%s*'2'%s*,%s*data:%[\"([^\"]+)")
       if not s then
         s = string.match(html, '"EWfySd"%s*,%s*"%[\\"(.-)\\"')
+        if s then
+          s = string.gsub(s, "\\\\", "\\")
+        end
       end
       if not reqid then
         reqid = string.match(html, '"FdrFJe":"([^"]+)"')
