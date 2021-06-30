@@ -121,9 +121,7 @@ allowed = function(url, parenturl)
   end
 
   if string.match(url, "^https?://[^/]*googleusercontent%.com/") then
-    print(url)
- 
- --   return true
+    return true
   end
 
   return false
