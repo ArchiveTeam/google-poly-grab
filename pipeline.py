@@ -49,7 +49,7 @@ if not WGET_AT:
 #
 # Update this each time you make a non-cosmetic change.
 # It will be added to the WARC files and reported to the tracker.
-VERSION = '20210619.01'
+VERSION = '20210630.01'
 USER_AGENT = 'Archive Team'
 TRACKER_ID = 'google-poly'
 TRACKER_HOST = 'legacy-api.arpa.li'
@@ -225,9 +225,9 @@ class WgetArgs(object):
             if item_type == 'poly':
                 wget_args.extend(['--warc-header', 'google-poly-item: '+item_value])
                 wget_args.append('https://poly.google.com/view/'+item_value)
-            #elif item_type == 'user':
-            #    wget_args.extend(['--warc-header', 'google-poly-user: '+item_value])
-            #    wget_args.append('https://poly.google.com/user/'+item_value)
+            elif item_type == 'user':
+                wget_args.extend(['--warc-header', 'google-poly-user: '+item_value])
+                wget_args.append('https://poly.google.com/user/'+item_value)
             else:
                 raise ValueError('item_type not supported.')
 
